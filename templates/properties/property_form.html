@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Property | Property Management{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ action }} Property</h2>
+                </div>
+                <div class="card-body">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <h5>Please correct the following errors:</h5>
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                                <li><strong>{{ field|title }}:</strong> {{ errors|join:", " }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Property Title</label>
+                            {{ form.title.errors }}
+                            <input type="text" name="{{ form.title.name }}" value="{{ form.title.value|default:'' }}" 
+                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.title.id_for_label }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.property_type.id_for_label }}" class="form-label">Property Type</label>
+                            {{ form.property_type.errors }}
+                            <select name="{{ form.property_type.name }}" 
+                                    class="form-select {% if form.property_type.errors %}is-invalid{% endif %}" 
+                                    id="{{ form.property_type.id_for_label }}" required>
+                                {% for value, label in form.fields.property_type.choices %}
+                                    <option value="{{ value }}" {% if form.property_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.bedrooms.id_for_label }}" class="form-label">Bedrooms</label>
+                                {{ form.bedrooms.errors }}
+                                <input type="number" name="{{ form.bedrooms.name }}" value="{{ form.bedrooms.value|default:'' }}" 
+                                       class="form-control {% if form.bedrooms.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.bedrooms.id_for_label }}" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.bathrooms.id_for_label }}" class="form-label">Bathrooms</label>
+                                {{ form.bathrooms.errors }}
+                                <input type="number" name="{{ form.bathrooms.name }}" value="{{ form.bathrooms.value|default:'' }}" 
+                                       class="form-control {% if form.bathrooms.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.bathrooms.id_for_label }}" min="0" step="0.5" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.square_meters.id_for_label }}" class="form-label">Square Meters</label>
+                            {{ form.square_meters.errors }}
+                            <input type="number" name="{{ form.square_meters.name }}" value="{{ form.square_meters.value|default:'' }}" 
+                                   class="form-control {% if form.square_meters.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.square_meters.id_for_label }}" min="0" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+                            {{ form.address.errors }}
+                            <input type="text" name="{{ form.address.name }}" value="{{ form.address.value|default:'' }}" 
+                                   class="form-control {% if form.address.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.address.id_for_label }}" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="{{ form.town_city.id_for_label }}" class="form-label">Town/City</label>
+                                {{ form.town_city.errors }}
+                                <input type="text" name="{{ form.town_city.name }}" value="{{ form.town_city.value|default:'' }}" 
+                                       class="form-control {% if form.town_city.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.town_city.id_for_label }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.county.id_for_label }}" class="form-label">County</label>
+                                {{ form.county.errors }}
+                                <input type="text" name="{{ form.county.name }}" value="{{ form.county.value|default:'' }}" 
+                                       class="form-control {% if form.county.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.county.id_for_label }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.postcode.id_for_label }}" class="form-label">Postcode</label>
+                                {{ form.postcode.errors }}
+                                <input type="text" name="{{ form.postcode.name }}" value="{{ form.postcode.value|default:'' }}" 
+                                       class="form-control {% if form.postcode.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.postcode.id_for_label }}" placeholder="e.g., AB12 3CD" required>
+                                <div class="form-text">UK postcode format</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description.errors }}
+                            <textarea name="{{ form.description.name }}" 
+                                      class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                      id="{{ form.description.id_for_label }}" rows="4" required>{{ form.description.value|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.monthly_rent.id_for_label }}" class="form-label">Monthly Rent (£)</label>
+                            {{ form.monthly_rent.errors }}
+                            <input type="number" name="{{ form.monthly_rent.name }}" value="{{ form.monthly_rent.value|default:'' }}" 
+                                   class="form-control {% if form.monthly_rent.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.monthly_rent.id_for_label }}" min="0" step="0.01" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" name="{{ form.available.name }}" 
+                                       class="form-check-input {% if form.available.errors %}is-invalid{% endif %}" 
+                                       id="{{ form.available.id_for_label }}" 
+                                       {% if form.available.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.available.id_for_label }}">Available for Rent</label>
+                                {{ form.available.errors }}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-end">
+                            <a href="{% url 'properties:property_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">{{ action }} Property</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

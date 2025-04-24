@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Sent Messages{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sent Messages</h2>
+        <a href="{% url 'communications:compose_message' %}" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Compose New Message
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-white">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'communications:inbox' %}">Inbox</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'communications:sent_messages' %}">Sent</a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body p-0">
+            {% if user_messages %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>To</th>
+                                <th>Subject</th>
+                                <th>Property</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in user_messages %}
+                                <tr>
+                                    <td>{{ message.recipient.get_full_name|default:message.recipient.username }}</td>
+                                    <td>
+                                        <a href="{% url 'communications:message_detail' message.id %}" class="text-decoration-none">
+                                            {{ message.subject }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if message.related_property %}
+                                            <a href="{% url 'properties:property_detail' message.related_property.id %}" class="text-decoration-none">
+                                                {{ message.related_property.title }}
+                                            </a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ message.sent_at|date:"M d, Y h:i A" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center">
+                    <p class="text-muted mb-0">You haven't sent any messages yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user_message.subject }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% if user == user_message.recipient %}
+                <li class="breadcrumb-item"><a href="{% url 'communications:inbox' %}">Inbox</a></li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'communications:sent_messages' %}">Sent Messages</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">Message</li>
+        </ol>
+    </nav>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ user_message.subject }}</h5>
+            <div>
+                <a href="{% url 'communications:compose_message_to' user_message.sender.id %}" class="btn btn-sm btn-outline-primary me-2">
+                    Reply
+                </a>
+                <a href="{% url 'communications:delete_message' user_message.id %}" class="btn btn-sm btn-outline-danger">
+                    Delete
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1">
+                            <strong>From:</strong> {{ user_message.sender.get_full_name|default:user_message.sender.username }}
+                        </p>
+                        <p class="mb-1">
+                            <strong>To:</strong> {{ user_message.recipient.get_full_name|default:user_message.recipient.username }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-1">
+                            <strong>Date:</strong> {{ user_message.sent_at|date:"F d, Y h:i A" }}
+                        </p>
+                        {% if user_message.related_property %}
+                            <p class="mb-1">
+                                <strong>Property:</strong> 
+                                <a href="{% url 'properties:property_detail' user_message.related_property.id %}">
+                                    {{ user_message.related_property.title }}
+                                </a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <div class="message-content mt-4">
+                {{ user_message.content|linebreaks }}
+            </div>
+            
+            {% if user_message.related_property %}
+                <div class="card mt-4">
+                    <div class="card-header">
+                        Related Property
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                {% if user_message.related_property.images.first %}
+                                    <img src="{{ user_message.related_property.images.first.image.url }}" 
+                                        alt="{{ user_message.related_property.title }}" 
+                                        class="img-fluid rounded">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center" 
+                                        style="height: 150px;">
+                                        <span class="text-muted">No Image</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <h5>{{ user_message.related_property.title }}</h5>
+                                <p>{{ user_message.related_property.address }}, {{ user_message.related_property.city }}</p>
+                                <p><strong>Price:</strong> ${{ user_message.related_property.monthly_rent|floatformat:2 }}/month</p>
+                                <a href="{% url 'properties:property_detail' user_message.related_property.id %}" class="btn btn-sm btn-outline-primary">
+                                    View Property
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

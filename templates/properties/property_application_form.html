@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply for {{ property.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'properties:property_list' %}">Properties</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'properties:property_detail' property.pk %}">{{ property.title }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Apply</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Apply for {{ property.title }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                {% if property.images.first %}
+                                    <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}" 
+                                         class="img-thumbnail" style="width: 120px; height: 80px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center" 
+                                         style="width: 120px; height: 80px;">
+                                        <span class="text-muted">No Image</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <h5 class="mb-1">{{ property.title }}</h5>
+                                <p class="text-muted mb-0">{{ property.address }}, {{ property.town_city }}</p>
+                                <p class="text-muted mb-0">£{{ property.monthly_rent|floatformat:2 }}/month</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <h5 class="mb-3">Application Details</h5>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.move_in_date.id_for_label }}" class="form-label">
+                                Desired Move-in Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.move_in_date }}
+                            {% if form.move_in_date.help_text %}
+                                <div class="form-text">{{ form.move_in_date.help_text }}</div>
+                            {% endif %}
+                            {% if form.move_in_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.move_in_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.message.id_for_label }}" class="form-label">
+                                Message to Landlord <span class="text-danger">*</span>
+                            </label>
+                            {{ form.message }}
+                            {% if form.message.help_text %}
+                                <div class="form-text">{{ form.message.help_text }}</div>
+                            {% endif %}
+                            {% if form.message.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.message.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Personal Information</h5>
+                        <p class="text-muted mb-3 small">This information helps landlords evaluate your application. All information is private and only shared with the property owner.</p>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.employment_status.id_for_label }}" class="form-label">Employment Status</label>
+                            {{ form.employment_status }}
+                            {% if form.employment_status.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.employment_status.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    {{ form.credit_check_consent }}
+                                    <label class="form-check-label" for="{{ form.credit_check_consent.id_for_label }}">
+                                        I consent to a credit check
+                                    </label>
+                                </div>
+                                {% if form.credit_check_consent.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.credit_check_consent.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.income.id_for_label }}" class="form-label">Monthly Income (£)</label>
+                                {{ form.income }}
+                                {% if form.income.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.income.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Pet Information</h5>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.has_pets }}
+                            <label class="form-check-label" for="{{ form.has_pets.id_for_label }}">
+                                I have pets
+                            </label>
+                        </div>
+                        
+                        <div class="mb-4 pet-description" id="petDescriptionContainer">
+                            <label for="{{ form.pet_description.id_for_label }}" class="form-label">Pet Description</label>
+                            {{ form.pet_description }}
+                            <div class="form-text">Please describe the type, breed, and number of pets you have.</div>
+                            {% if form.pet_description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pet_description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Application</button>
+                            <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Toggle pet description visibility based on the "I have pets" checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+        const hasPetsCheckbox = document.getElementById('{{ form.has_pets.id_for_label }}');
+        const petDescriptionContainer = document.getElementById('petDescriptionContainer');
+        
+        // Function to toggle visibility
+        function togglePetDescription() {
+            if (hasPetsCheckbox.checked) {
+                petDescriptionContainer.style.display = 'block';
+            } else {
+                petDescriptionContainer.style.display = 'none';
+            }
+        }
+        
+        // Initial state
+        togglePetDescription();
+        
+        // Toggle when checkbox changes
+        hasPetsCheckbox.addEventListener('change', togglePetDescription);
+    });
+</script>
+{% endblock %}
+{% endblock %}

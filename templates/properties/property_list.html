@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Properties{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Available Properties</h2>
+        </div>
+        <div class="col-auto">
+            {% if user.is_authenticated and user.user_type == 'landlord' %}
+                <a href="{% url 'properties:property_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add New Property
+                </a>
+                <a href="{% url 'properties:landlord_properties' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-list"></i> My Properties
+                </a>
+            {% endif %}
+            <a href="{% url 'properties:property_search' %}" class="btn btn-outline-primary">
+                <i class="fas fa-search"></i> Advanced Search
+            </a>
+            
+            {% if compare_properties %}
+                <a href="{% url 'properties:property_compare' %}" class="btn btn-success">
+                    <i class="fas fa-exchange-alt"></i> Compare Selected ({{ compare_properties|length }})
+                </a>
+                <a href="{% url 'properties:clear_compare' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        {% if properties %}
+            {% for property in properties %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="position-absolute" style="right: 10px; top: 10px;">
+                            <div class="form-check">
+                                <input class="form-check-input compare-checkbox" type="checkbox" 
+                                       id="compare-{{ property.id }}" 
+                                       data-property-id="{{ property.id }}"
+                                       {% if property.id|stringformat:"i" in compare_properties %}checked{% endif %}>
+                                <label class="form-check-label" for="compare-{{ property.id }}">
+                                    Compare
+                                </label>
+                            </div>
+                        </div>
+                        
+                        {% if property.images.first %}
+                            <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <span class="text-muted">No Image Available</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ property.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ property.get_property_type_display }}</h6>
+                            <p class="card-text">{{ property.address }}, {{ property.town_city }}, {{ property.county }} {{ property.postcode }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="badge bg-primary rounded-pill">£{{ property.monthly_rent|floatformat:2 }}/month</span>
+                                <span class="text-muted">{{ property.bedrooms }} bd | {{ property.bathrooms }} ba | {{ property.square_meters }} m²</span>
+                            </div>
+                            <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col">
+                <div class="alert alert-info">
+                    No properties available at this time.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle compare checkboxes
+        const compareCheckboxes = document.querySelectorAll('.compare-checkbox');
+        
+        compareCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const propertyId = this.dataset.propertyId;
+                const isChecked = this.checked;
+                
+                // Send AJAX request to add/remove property from comparison
+                fetch(`{% url 'properties:toggle_compare' %}?property_id=${propertyId}&add=${isChecked ? 1 : 0}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to update the compare button state
+                            window.location.reload();
+                        } else {
+                            alert(data.error || 'An error occurred');
+                            // Reset checkbox state if there was an error
+                            this.checked = !isChecked;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                        // Reset checkbox state
+                        this.checked = !isChecked;
+                    });
+            });
+        });
+    });
+</script>
+{% endblock %}

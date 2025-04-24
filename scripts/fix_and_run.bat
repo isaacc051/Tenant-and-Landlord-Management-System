@@ -1,0 +1,23 @@
+@echo off
+echo Starting property management system setup and fixing issues...
+
+echo Activating virtual environment...
+call fresh_venv\Scripts\activate.bat
+
+echo Installing Pillow (image processing library)...
+pip uninstall -y pillow
+pip install --no-cache-dir pillow==10.1.0
+
+echo Creating static directory...
+mkdir static
+
+echo Creating database migrations...
+python manage.py makemigrations
+
+echo Applying migrations...
+python manage.py migrate
+
+echo Starting development server...
+python manage.py runserver
+
+pause

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}My Maintenance Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>My Maintenance Requests</h2>
+        <a href="{% url 'maintenance:maintenance_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Request
+        </a>
+    </div>
+    
+    <!-- Status filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="status" class="col-form-label">Filter by Status:</label>
+                </div>
+                <div class="col-auto">
+                    <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Requests</option>
+                        {% for status_value, status_label in STATUS_CHOICES %}
+                            <option value="{{ status_value }}" {% if status_filter == status_value %}selected{% endif %}>
+                                {{ status_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if maintenance_requests %}
+        <div class="row">
+            {% for request in maintenance_requests %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ request.title }}</h5>
+                            {% if request.priority == 'low' %}
+                                <span class="badge bg-info">Low Priority</span>
+                            {% elif request.priority == 'medium' %}
+                                <span class="badge bg-primary">Medium Priority</span>
+                            {% elif request.priority == 'high' %}
+                                <span class="badge bg-warning">High Priority</span>
+                            {% elif request.priority == 'emergency' %}
+                                <span class="badge bg-danger">Emergency</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">
+                                <strong>Property:</strong> {{ request.property.title }}
+                            </p>
+                            <p class="text-muted mb-2">
+                                <strong>Status:</strong> 
+                                {% if request.status == 'submitted' %}
+                                    <span class="text-info">Submitted</span>
+                                {% elif request.status == 'in_progress' %}
+                                    <span class="text-primary">In Progress</span>
+                                {% elif request.status == 'completed' %}
+                                    <span class="text-success">Completed</span>
+                                {% elif request.status == 'cancelled' %}
+                                    <span class="text-secondary">Cancelled</span>
+                                {% endif %}
+                            </p>
+                            <p class="text-muted mb-2">
+                                <strong>Submitted:</strong> {{ request.created_at|date:"M d, Y" }}
+                            </p>
+                            {% if request.assigned_to %}
+                                <p class="text-muted mb-2">
+                                    <strong>Assigned to:</strong> {{ request.assigned_to }}
+                                </p>
+                            {% endif %}
+                            <p class="card-text">{{ request.description|truncatechars:150 }}</p>
+                            
+                            {% if request.images.exists %}
+                                <div class="mt-3">
+                                    <small class="text-muted">{{ request.images.count }} image(s) attached</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'maintenance:maintenance_detail' request.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            {% if request.status == 'submitted' %}
+                                <a href="{% url 'maintenance:add_maintenance_image' request.id %}" class="btn btn-sm btn-outline-secondary">Add Image</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">You don't have any maintenance requests yet. Click "New Request" to create one.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

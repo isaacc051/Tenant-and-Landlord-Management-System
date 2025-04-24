@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Property Applications</h2>
+    
+    {% if applications %}
+        <div class="row mt-4">
+            {% for application in applications %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span>{{ application.property.title }}</span>
+                            {% if application.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elif application.status == 'approved' %}
+                                <span class="badge bg-success">Approved</span>
+                            {% elif application.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                {% if application.property.images.first %}
+                                    <img src="{{ application.property.images.first.image.url }}" 
+                                         alt="{{ application.property.title }}" 
+                                         class="img-fluid rounded mb-2" style="height: 150px; width: 100%; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center mb-2" 
+                                         style="height: 150px;">
+                                        <span class="text-muted">No Image</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-geo-alt"></i> 
+                                {{ application.property.address }}, {{ application.property.city }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Rent:</strong> ${{ application.property.monthly_rent|floatformat:2 }}/month
+                            </p>
+                            <p class="mb-2">
+                                <strong>Applied on:</strong> {{ application.created_at|date:"M d, Y" }}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Desired move-in date:</strong> {{ application.move_in_date|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'properties:application_detail' application.id %}" 
+                                   class="btn btn-outline-primary btn-sm">View Details</a>
+                                <a href="{% url 'properties:property_detail' application.property.id %}" 
+                                   class="btn btn-outline-secondary btn-sm">View Property</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            <p class="mb-0">You haven't applied to any properties yet.</p>
+        </div>
+        <a href="{% url 'properties:property_list' %}" class="btn btn-primary mt-2">Browse Properties</a>
+    {% endif %}
+</div>
+{% endblock %}

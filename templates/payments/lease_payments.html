@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Lease Payments{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'leases:landlord_leases' %}">Leases</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'leases:lease_detail' lease.id %}">Lease #{{ lease.id }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Payments</li>
+        </ol>
+    </nav>
+
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Payments for {{ lease.property.address }}</h2>
+            <p class="text-muted">Tenant: {{ lease.tenant.get_full_name|default:lease.tenant.username }}</p>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Payment Summary</h5>
+                    <h2 class="card-text text-primary">${{ total_paid|floatformat:2 }}</h2>
+                    <p class="card-text text-muted">Total payments received</p>
+                    <p><strong>Monthly Rent:</strong> ${{ lease.monthly_rent|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Lease Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Lease Period:</strong> {{ lease.start_date|date:"M d, Y" }} - {{ lease.end_date|date:"M d, Y" }}</p>
+                            <p><strong>Lease Status:</strong> 
+                                {% if lease.status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elif lease.status == 'draft' %}
+                                    <span class="badge bg-secondary">Draft</span>
+                                {% elif lease.status == 'expired' %}
+                                    <span class="badge bg-danger">Expired</span>
+                                {% else %}
+                                    <span class="badge bg-dark">{{ lease.get_status_display }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Security Deposit:</strong> ${{ lease.security_deposit|floatformat:2 }}</p>
+                            <p><strong>Payment Due Date:</strong> 1st of each month</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if payments %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Payment Date</th>
+                        <th>Due Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Transaction ID</th>
+                        <th>Method</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                            <td>{{ payment.due_date|date:"M d, Y" }}</td>
+                            <td>{{ payment.get_payment_type_display }}</td>
+                            <td>${{ payment.amount|floatformat:2 }}</td>
+                            <td>
+                                {% if payment.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif payment.status == 'pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif payment.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ payment.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ payment.transaction_id }}</td>
+                            <td>{{ payment.get_payment_method_display }}</td>
+                            <td>
+                                {% if payment.status == 'pending' %}
+                                    <a href="{% url 'payments:payment_confirmation' payment.id %}" class="btn btn-sm btn-warning">Process</a>
+                                {% else %}
+                                    <a href="{% url 'payments:payment_invoice' payment.id %}" class="btn btn-sm btn-outline-primary">View Receipt</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No payments have been made for this lease yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

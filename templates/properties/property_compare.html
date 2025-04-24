@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Properties{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'properties:property_list' %}">Properties</a></li>
+            <li class="breadcrumb-item active">Compare Properties</li>
+        </ol>
+    </nav>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Property Comparison</h2>
+        <a href="{% url 'properties:clear_compare' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-times"></i> Clear Comparison
+        </a>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 15%">Feature</th>
+                    {% for property in properties %}
+                        <th style="width: '{% widthratio 85 properties.count 1 %}%'">
+                            <div style="width: 100%;">
+                                {{ property.title }}
+                            </div>
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Image</th>
+                    {% for property in properties %}
+                        <td>
+                            {% if property.images.first %}
+                                <img src="{{ property.images.first.image.url }}" 
+                                     alt="{{ property.title }}"
+                                     class="img-fluid rounded" 
+                                     style="max-height: 150px; width: 100%; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-light d-flex align-items-center justify-content-center" 
+                                     style="height: 150px;">
+                                    <span class="text-muted">No Image</span>
+                                </div>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Price</th>
+                    {% for property in properties %}
+                        <td>£{{ property.monthly_rent|floatformat:2 }}/month</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Type</th>
+                    {% for property in properties %}
+                        <td>{{ property.get_property_type_display }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Address</th>
+                    {% for property in properties %}
+                        <td>{{ property.address }}, {{ property.town_city }}, {{ property.county }} {{ property.postcode }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Bedrooms</th>
+                    {% for property in properties %}
+                        <td>{{ property.bedrooms }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Bathrooms</th>
+                    {% for property in properties %}
+                        <td>{{ property.bathrooms }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Size</th>
+                    {% for property in properties %}
+                        <td>{{ property.square_meters }} m² ({{ property.square_feet }} sq ft)</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    {% for property in properties %}
+                        <td>{{ property.description|truncatechars:200 }}</td>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <th>Actions</th>
+                    {% for property in properties %}
+                        <td>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                {% if user.is_authenticated and user.user_type == 'tenant' and property.available %}
+                                    <a href="{% url 'properties:apply_for_property' property.pk %}" class="btn btn-sm btn-primary">Apply</a>
+                                    <a href="{% url 'communications:contact_landlord' property.pk %}" class="btn btn-sm btn-outline-secondary">Contact Landlord</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

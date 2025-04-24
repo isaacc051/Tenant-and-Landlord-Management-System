@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Application Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            {% if user == application.property.owner %}
+                <li class="breadcrumb-item"><a href="{% url 'properties:landlord_applications' %}">Applications</a></li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{% url 'properties:tenant_applications' %}">My Applications</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active" aria-current="page">Application Details</li>
+        </ol>
+    </nav>
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Application for {{ application.property.title }}</h5>
+            {% if application.status == 'pending' %}
+                <span class="badge bg-warning">Pending</span>
+            {% elif application.status == 'approved' %}
+                <span class="badge bg-success">Approved</span>
+            {% elif application.status == 'rejected' %}
+                <span class="badge bg-danger">Rejected</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6>Property Information</h6>
+                    <div class="mb-3">
+                        {% if application.property.images.first %}
+                            <img src="{{ application.property.images.first.image.url }}" 
+                                alt="{{ application.property.title }}" 
+                                class="img-fluid rounded" style="max-height: 200px; width: 100%; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" 
+                                style="height: 200px;">
+                                <span class="text-muted">No Image</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <p class="mb-1">
+                        <strong>Title:</strong> {{ application.property.title }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Address:</strong> {{ application.property.address }}, {{ application.property.town_city }}, {{ application.property.county }} {{ application.property.postcode }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Rent:</strong> £{{ application.property.monthly_rent|floatformat:2 }}/month
+                    </p>
+                    <p class="mb-1">
+                        <strong>Type:</strong> {{ application.property.get_property_type_display }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Bedrooms:</strong> {{ application.property.bedrooms }} | 
+                        <strong>Bathrooms:</strong> {{ application.property.bathrooms }}
+                    </p>
+                    <p class="mb-0">
+                        <a href="{% url 'properties:property_detail' application.property.id %}" class="btn btn-sm btn-outline-primary mt-2">View Property</a>
+                    </p>
+                </div>
+                
+                <div class="col-md-6">
+                    <h6>Applicant Information</h6>
+                    <p class="mb-1">
+                        <strong>Name:</strong> {{ application.applicant.get_full_name|default:application.applicant.username }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Email:</strong> {{ application.applicant.email }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Applied on:</strong> {{ application.created_at|date:"j F Y" }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Desired move-in date:</strong> {{ application.move_in_date|date:"j F Y" }}
+                    </p>
+                    
+                    {% if application.employment_status %}
+                        <p class="mb-1">
+                            <strong>Employment Status:</strong> {{ application.employment_status }}
+                        </p>
+                    {% endif %}
+                    
+                    {% if application.income %}
+                        <p class="mb-1">
+                            <strong>Monthly Income:</strong> £{{ application.income|floatformat:2 }}
+                        </p>
+                    {% endif %}
+                    
+                    <p class="mb-1">
+                        <strong>Has Pets:</strong> {% if application.has_pets %}Yes{% else %}No{% endif %}
+                    </p>
+                    
+                    {% if application.has_pets and application.pet_description %}
+                        <p class="mb-1">
+                            <strong>Pet Description:</strong> {{ application.pet_description }}
+                        </p>
+                    {% endif %}
+                    
+                    <p class="mb-1">
+                        <strong>Credit Check Consent:</strong> {% if application.credit_check_consent %}Yes{% else %}No{% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    Message from Applicant
+                </div>
+                <div class="card-body">
+                    <p>{{ application.message|linebreaks }}</p>
+                </div>
+            </div>
+            
+            {% if user == application.property.owner and application.status == 'pending' %}
+                <div class="card">
+                    <div class="card-header">
+                        Application Decision
+                    </div>
+                    <div class="card-body">
+                        <p>You can approve or reject this application. Once a decision is made, the applicant will be notified.</p>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'properties:update_application_status' application.id 'approved' %}" 
+                               class="btn btn-success" 
+                               onclick="return confirm('Are you sure you want to approve this application?')">
+                                Approve Application
+                            </a>
+                            <a href="{% url 'properties:update_application_status' application.id 'rejected' %}" 
+                               class="btn btn-danger" 
+                               onclick="return confirm('Are you sure you want to reject this application?')">
+                                Reject Application
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% elif user == application.property.owner and application.status == 'approved' %}
+                <div class="card">
+                    <div class="card-header">
+                        Next Steps
+                    </div>
+                    <div class="card-body">
+                        <p>This application has been approved. You can now create a tenancy agreement for this tenant.</p>
+                        <a href="{% url 'leases:lease_create' property_id=application.property.id tenant_id=application.applicant.id %}" 
+                           class="btn btn-primary">
+                            Create Tenancy Agreement
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

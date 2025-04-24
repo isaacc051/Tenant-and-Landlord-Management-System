@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | Property Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">My Profile</h2>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="img-fluid rounded-circle">
+                        {% else %}
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                <span style="font-size: 40px;">{{ user.get_initials }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h3>{{ user.get_full_name|default:user.username }}</h3>
+                        <p class="text-muted">{{ user.get_user_type_display }}</p>
+                        <p><i class="fas fa-envelope me-2"></i> {{ user.email }}</p>
+                        {% if user.phone_number %}
+                            <p><i class="fas fa-phone me-2"></i> {{ user.phone_number }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h4>Additional Information</h4>
+                        <hr>
+                        <div class="row mb-2">
+                            <div class="col-md-4"><strong>Date Joined:</strong></div>
+                            <div class="col-md-8">{{ user.date_joined|date:"F j, Y" }}</div>
+                        </div>
+                        
+                        {% if user.user_type == 'tenant' %}
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Employment:</strong></div>
+                                <div class="col-md-8">{{ user.employment_status|default:"Not provided" }}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Monthly Income:</strong></div>
+                                <div class="col-md-8">
+                                    {% if user.monthly_income %}
+                                        ${{ user.monthly_income }}
+                                    {% else %}
+                                        Not provided
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        {% if user.user_type == 'landlord' %}
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Company:</strong></div>
+                                <div class="col-md-8">{{ user.company_name|default:"Not provided" }}</div>
+                            </div>
+                        {% endif %}
+                        
+                        {% if user.bio %}
+                            <div class="row mb-2">
+                                <div class="col-md-4"><strong>Bio:</strong></div>
+                                <div class="col-md-8">{{ user.bio }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-end">
+                    <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+                    <a href="{% url 'account_change_password' %}" class="btn btn-outline-secondary">Change Password</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+{% endblock %}

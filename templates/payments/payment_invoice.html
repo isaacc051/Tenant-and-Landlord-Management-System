@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Receipt{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h2>Payment Receipt</h2>
+            <div>
+                <button class="btn btn-outline-primary me-2" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i> Print Receipt
+                </button>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary d-print-none">
+                    <i class="fas fa-arrow-left me-2"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="row mb-4">
+                <div class="col-6">
+                    <h4 class="text-primary mb-3">Property Management System</h4>
+                    <p class="mb-1">123 Business Ave</p>
+                    <p class="mb-1">Suite 100</p>
+                    <p class="mb-1">City, State 12345</p>
+                    <p class="mb-1">Email: admin@property-system.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h4 class="text-uppercase text-muted">Receipt</h4>
+                    <h5 class="text-muted mb-2">Transaction ID: {{ payment.transaction_id }}</h5>
+                    <p class="mb-1"><strong>Date:</strong> {{ payment.payment_date|date:"F d, Y" }}</p>
+                    <p class="mb-1"><strong>Time:</strong> {{ payment.payment_date|date:"g:i A" }}</p>
+                    <p class="mb-4"><strong>Payment Method:</strong> {{ payment.get_payment_method_display }}</p>
+                    
+                    {% if payment.status == 'completed' %}
+                        <span class="badge bg-success px-3 py-2 fs-6">PAID</span>
+                    {% elif payment.status == 'pending' %}
+                        <span class="badge bg-warning text-dark px-3 py-2 fs-6">PENDING</span>
+                    {% elif payment.status == 'failed' %}
+                        <span class="badge bg-danger px-3 py-2 fs-6">FAILED</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-6">
+                    <h5 class="text-muted mb-2">Billed To:</h5>
+                    <p class="mb-1"><strong>{{ payment.tenant.get_full_name|default:payment.tenant.username }}</strong></p>
+                    <p class="mb-1">{{ payment.lease.property.address }}</p>
+                    {% if payment.lease.property.unit_number %}
+                    <p class="mb-1">Unit #{{ payment.lease.property.unit_number }}</p>
+                    {% endif %}
+                    <p class="mb-1">{{ payment.lease.property.city }}, {{ payment.lease.property.state }} {{ payment.lease.property.zip_code }}</p>
+                </div>
+                <div class="col-6 text-end">
+                    <h5 class="text-muted mb-2">Property Owner:</h5>
+                    <p class="mb-1"><strong>{{ payment.lease.property.owner.get_full_name|default:payment.lease.property.owner.username }}</strong></p>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-4">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                {% if payment.payment_type == 'rent' %}
+                                    Rent Payment - {{ payment.lease.property.address }}
+                                    {% if payment.lease.property.unit_number %}
+                                        #{{ payment.lease.property.unit_number }}
+                                    {% endif %}
+                                    ({{ payment.payment_date|date:"F Y" }})
+                                {% elif payment.payment_type == 'deposit' %}
+                                    Security Deposit - {{ payment.lease.property.address }}
+                                    {% if payment.lease.property.unit_number %}
+                                        #{{ payment.lease.property.unit_number }}
+                                    {% endif %}
+                                {% elif payment.payment_type == 'late_fee' %}
+                                    Late Fee - {{ payment.lease.property.address }}
+                                    {% if payment.lease.property.unit_number %}
+                                        #{{ payment.lease.property.unit_number }}
+                                    {% endif %}
+                                {% elif payment.payment_type == 'maintenance' %}
+                                    Maintenance Fee - {{ payment.lease.property.address }}
+                                    {% if payment.lease.property.unit_number %}
+                                        #{{ payment.lease.property.unit_number }}
+                                    {% endif %}
+                                {% else %}
+                                    {{ payment.get_payment_type_display }} - {{ payment.lease.property.address }}
+                                    {% if payment.lease.property.unit_number %}
+                                        #{{ payment.lease.property.unit_number }}
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                            <td class="text-end">${{ payment.amount|floatformat:2 }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>Total</th>
+                            <th class="text-end">${{ payment.amount|floatformat:2 }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="bg-light p-3 rounded">
+                        <h5 class="mb-2">Payment Notes:</h5>
+                        {% if payment.notes %}
+                            <p>{{ payment.notes }}</p>
+                        {% else %}
+                            <p>Thank you for your payment. This receipt confirms that your payment has been processed successfully.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-footer text-center p-3">
+            <p class="mb-0">If you have any questions regarding this receipt, please contact us at admin@property-system.com.</p>
+        </div>
+    </div>
+    
+    <div class="small text-muted text-center mt-4">
+        <p>This receipt was generated on {{ today|date:"F d, Y" }} at {{ today|date:"g:i A" }}.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<style type="text/css" media="print">
+    @media print {
+        body {
+            font-size: 12pt;
+        }
+        
+        .d-print-none,
+        .d-print-none * {
+            display: none !important;
+        }
+        
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        .card-body {
+            padding: 0 !important;
+        }
+        
+        .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        a {
+            text-decoration: none !important;
+        }
+        
+        .table {
+            width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Maintenance Request{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'maintenance:maintenance_list' %}">Maintenance Requests</a></li>
+            <li class="breadcrumb-item active">Create New Request</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Create Maintenance Request</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Property</label>
+                            <select name="property" class="form-select" required>
+                                <option value="">Select Property</option>
+                                {% for lease in leases %}
+                                    <option value="{{ lease.property.id }}">{{ lease.property.title }} - {{ lease.property.address }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">Issue Title</label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            <div class="form-text">Please describe the issue in detail. Include when it started and any relevant information.</div>
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.priority.id_for_label }}" class="form-label">Priority</label>
+                            {{ form.priority }}
+                            <div class="form-text">
+                                <ul class="mb-0 ps-3">
+                                    <li><strong>Low</strong>: Non-urgent issues that can be addressed during regular maintenance</li>
+                                    <li><strong>Medium</strong>: Issues that should be addressed soon but aren't urgent</li>
+                                    <li><strong>High</strong>: Issues that need prompt attention</li>
+                                    <li><strong>Emergency</strong>: Immediate threats to safety or property</li>
+                                </ul>
+                            </div>
+                            {% if form.priority.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.priority.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Request</button>
+                            <a href="{% url 'maintenance:maintenance_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
