@@ -10,57 +10,8 @@
     </div>
 </div>
 
-<div class="row mt-5 mb-4">
-    <div class="col-12 text-center">
-        <h2>Platform Features</h2>
-        <p class="text-muted">Streamline your property management experience</p>
-    </div>
-</div>
-
-<div class="row mb-5">
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 border-primary">
-            <div class="card-body text-center">
-                <i class="fas fa-home fa-3x text-primary mb-3"></i>
-                <h5 class="card-title">Property Management</h5>
-                <p class="card-text">List, view, and manage properties with comprehensive details and photos.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 border-success">
-            <div class="card-body text-center">
-                <i class="fas fa-file-contract fa-3x text-success mb-3"></i>
-                <h5 class="card-title">Lease Agreements</h5>
-                <p class="card-text">Create, sign, and manage lease agreements with tenants digitally.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 border-warning">
-            <div class="card-body text-center">
-                <i class="fas fa-tools fa-3x text-warning mb-3"></i>
-                <h5 class="card-title">Maintenance Requests</h5>
-                <p class="card-text">Submit and track maintenance requests with photos and status updates.</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 border-info">
-            <div class="card-body text-center">
-                <i class="fas fa-money-bill-wave fa-3x text-info mb-3"></i>
-                <h5 class="card-title">Payment Processing</h5>
-                <p class="card-text">Process rent payments and track payment history securely online.</p>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% if not user.is_authenticated %}
-    <div class="row justify-content-center mt-5 mb-5">
+    <div class="row justify-content-center mt-3 mb-5">
         <div class="col-md-6 text-center">
             <h3>Get Started Today</h3>
             <div class="mt-4">
@@ -70,7 +21,7 @@
         </div>
     </div>
 {% else %}
-    <div class="row justify-content-center mt-5 mb-5">
+    <div class="row justify-content-center mt-3 mb-5">
         <div class="col-md-6 text-center">
             <h3>Welcome, {{ user.get_full_name|default:user.username }}!</h3>
             <p class="mb-4">You are logged in as a {{ user.get_user_type_display }}.</p>
