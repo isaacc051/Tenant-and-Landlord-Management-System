@@ -9,7 +9,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('accounts/', include('accounts.urls')),  # Added this line to include your custom accounts URLs
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('properties/', include('properties.urls')),
+    path('properties/', include(('properties.urls', 'properties'), namespace='properties')),
     path('leases/', include('leases.urls')),
     path('maintenance/', include('maintenance.urls')),
     path('payments/', include('payments.urls')),

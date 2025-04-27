@@ -19,19 +19,19 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" 
                                 type="button" role="tab" aria-controls="pending" aria-selected="false">
-                            Pending <span class="badge bg-warning ms-1">{{ applications|dictsortreversed:"created_at"|dictsort:"status"|regroup_by:"status='pending'" | length }}</span>
+                            Pending <span class="badge bg-warning ms-1">{{ pending_count }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" 
                                 type="button" role="tab" aria-controls="approved" aria-selected="false">
-                            Approved <span class="badge bg-success ms-1">{{ applications|dictsortreversed:"created_at"|dictsort:"status"|regroup_by:"status='approved'" | length }}</span>
+                            Approved <span class="badge bg-success ms-1">{{ approved_count }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" 
                                 type="button" role="tab" aria-controls="rejected" aria-selected="false">
-                            Rejected <span class="badge bg-danger ms-1">{{ applications|dictsortreversed:"created_at"|dictsort:"status"|regroup_by:"status='rejected'" | length }}</span>
+                            Rejected <span class="badge bg-danger ms-1">{{ rejected_count }}</span>
                         </button>
                     </li>
                 </ul>

@@ -243,7 +243,15 @@ def landlord_applications(request):
     
     # Get all applications for the landlord's properties
     applications = PropertyApplication.objects.filter(property__owner=request.user)
-    return render(request, 'properties/landlord_applications.html', {'applications': applications})
+    pending_count = applications.filter(status='pending').count()
+    approved_count = applications.filter(status='approved').count()
+    rejected_count = applications.filter(status='rejected').count()
+    return render(request, 'properties/landlord_applications.html', {
+        'applications': applications,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
+    })
 
 @login_required
 def application_detail(request, application_id):
