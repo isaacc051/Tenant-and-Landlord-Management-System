@@ -128,15 +128,18 @@
                                    id="{{ form.monthly_rent.id_for_label }}" min="0" step="0.01" required>
                         </div>
                         
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" name="{{ form.available.name }}" 
-                                       class="form-check-input {% if form.available.errors %}is-invalid{% endif %}" 
-                                       id="{{ form.available.id_for_label }}" 
-                                       {% if form.available.value %}checked{% endif %}>
-                                <label class="form-check-label" for="{{ form.available.id_for_label }}">Available for Rent</label>
-                                {{ form.available.errors }}
-                            </div>
+                        <div class="form-group mb-3">
+                            <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
+                            <select name="{{ form.status.name }}"
+                                    class="form-select {% if form.status.errors %}is-invalid{% endif %}"
+                                    id="{{ form.status.id_for_label }}">
+                                {% for value, label in form.status.field.choices %}
+                                    <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            {{ form.status.errors }}
                         </div>
                         
                         <div class="mt-4 text-end">

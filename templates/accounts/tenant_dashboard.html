@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tenant Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Tenant Dashboard</h1>
+    
+    <!-- Reminder Widgets -->
+    {% include 'leases/reminder_widgets.html' %}
+    
+    <!-- Active Lease Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-file-contract me-2"></i>Active Lease
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if active_lease %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Property Details</h6>
+                        <p class="mb-1"><strong>Address:</strong> {{ active_lease.property.address }}</p>
+                        <p class="mb-1"><strong>Monthly Rent:</strong> £{{ active_lease.monthly_rent }}</p>
+                        <p class="mb-1"><strong>Lease Period:</strong> {{ active_lease.start_date|date:"F d, Y" }} to {{ active_lease.end_date|date:"F d, Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Lease Status</h6>
+                        <p class="mb-1"><strong>Status:</strong> {{ active_lease.get_status_display }}</p>
+                        <p class="mb-1"><strong>Security Deposit:</strong> £{{ active_lease.security_deposit }}</p>
+                        <a href="{% url 'leases:lease_detail' active_lease.id %}" class="btn btn-primary btn-sm mt-2">View Lease Details</a>
+                    </div>
+                </div>
+            {% else %}
+                <p class="mb-0">No active lease found.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recent Payments Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-receipt me-2"></i>Recent Payments
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if recent_payments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in recent_payments %}
+                                <tr>
+                                    <td>{{ payment.payment_date|date:"F d, Y" }}</td>
+                                    <td>£{{ payment.amount }}</td>
+                                    <td>{{ payment.get_payment_type_display }}</td>
+                                    <td>
+                                        <span class="badge {% if payment.status == 'completed' %}bg-success{% elif payment.status == 'pending' %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ payment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if payment.receipt_issued %}
+                                            <a href="{{ payment.get_receipt_url }}" class="btn btn-sm btn-outline-primary">View Receipt</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="mb-0">No recent payments found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

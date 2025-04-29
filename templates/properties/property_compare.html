@@ -99,7 +99,7 @@
                         <td>
                             <div class="d-grid gap-2">
                                 <a href="{% url 'properties:property_detail' property.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
-                                {% if user.is_authenticated and user.user_type == 'tenant' and property.available %}
+                                {% if user.is_authenticated and user.user_type == 'tenant' and property.status == 'available' %}
                                     <a href="{% url 'properties:apply_for_property' property.pk %}" class="btn btn-sm btn-primary">Apply</a>
                                     <a href="{% url 'communications:contact_landlord' property.pk %}" class="btn btn-sm btn-outline-secondary">Contact Landlord</a>
                                 {% endif %}

@@ -34,14 +34,13 @@
             {% elif user.user_type == 'tenant' %}
                 <div class="mt-4">
                     <a href="{% url 'maintenance:maintenance_create' %}" class="btn btn-primary me-2">Submit Maintenance Request</a>
-                    <a href="{% url 'leases:tenant_leases' %}" class="btn btn-outline-primary">View My Leases</a>
+                    <a href="{% url 'leases:tenant_leases' %}" class="btn btn-outline-primary me-2">View My Leases</a>
+                </div>
+                <div class="mt-3">
+                    <a href="{% url 'accounts:tenant_dashboard' %}" class="btn btn-success">Tenant Dashboard</a>
                 </div>
             {% endif %}
         </div>
     </div>
 {% endif %}
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 {% endblock %}

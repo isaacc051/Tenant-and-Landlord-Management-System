@@ -5,10 +5,20 @@ from django.db.models import Q
 from django.http import JsonResponse
 from .models import Property, PropertyImage, PropertyDocument, PropertyApplication
 from .forms import PropertyForm, PropertyImageForm, PropertyDocumentForm, PropertySearchForm, PropertyApplicationForm
+from django.template.loader import get_template
+from django.conf import settings
 
 def property_list(request):
     """View for listing all available properties"""
-    properties = Property.objects.filter(available=True)
+    properties = Property.objects.all()
+    
+    # For tenants, only show available properties
+    if request.user.is_authenticated and request.user.user_type == 'tenant':
+        # First update all property statuses
+        for property in properties:
+            property.update_status()
+        # Then filter for available properties
+        properties = properties.filter(status='available')
     
     # Get comparison list from session
     compare_properties = request.session.get('compare_properties', [])
@@ -117,6 +127,15 @@ def add_property_image(request, property_id):
     else:
         form = PropertyImageForm()
     
+    # Debug print statements
+    print("Template directories:", settings.TEMPLATES[0]['DIRS'])
+    print("Looking for template at:", 'properties/property_image_form.html')
+    try:
+        template = get_template('properties/property_image_form.html')
+        print("Template found at:", template.origin.name)
+    except Exception as e:
+        print("Template loading error:", str(e))
+    
     return render(request, 'properties/property_image_form.html', {'form': form, 'property': property})
 
 @login_required
@@ -144,7 +163,16 @@ def add_property_document(request, property_id):
 
 def property_search(request):
     """View for searching properties based on user preferences"""
-    properties = Property.objects.filter(available=True)
+    properties = Property.objects.all()
+    
+    # For tenants, only show available properties
+    if request.user.is_authenticated and request.user.user_type == 'tenant':
+        # First update all property statuses
+        for property in properties:
+            property.update_status()
+        # Then filter for available properties
+        properties = properties.filter(status='available')
+    
     form = PropertySearchForm(request.GET)
     
     if form.is_valid():

@@ -8,7 +8,7 @@ class PropertyForm(forms.ModelForm):
         model = Property
         fields = [
             'title', 'property_type', 'address', 'town_city', 'county', 'postcode',
-            'description', 'monthly_rent', 'bedrooms', 'bathrooms', 'square_meters', 'available'
+            'description', 'monthly_rent', 'bedrooms', 'bathrooms', 'square_meters', 'status'
         ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4}),

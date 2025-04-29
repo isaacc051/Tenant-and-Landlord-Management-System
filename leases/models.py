@@ -31,6 +31,20 @@ class Lease(models.Model):
     def is_active(self):
         today = timezone.now().date()
         return self.status == 'active' and self.start_date <= today <= self.end_date
+    
+    def save(self, *args, **kwargs):
+        """Override save to update property status when lease status changes"""
+        is_new = self.pk is None
+        old_status = None
+        if not is_new:
+            old_lease = Lease.objects.get(pk=self.pk)
+            old_status = old_lease.status
+        
+        super().save(*args, **kwargs)
+        
+        # Update property status if lease status changed to/from active
+        if is_new or old_status != self.status:
+            self.property.update_status()
 
 
 class LeaseDocument(models.Model):

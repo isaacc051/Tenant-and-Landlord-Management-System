@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Tenant and Landlord Management System{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -19,6 +20,13 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
+                    {% if user.is_authenticated and user.user_type == 'tenant' %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:tenant_dashboard' %}">
+                                <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'properties:property_list' %}">Properties</a>
                     </li>
@@ -48,6 +56,14 @@
                             <a class="nav-link" href="{% url 'communications:inbox' %}">Messages</a>
                         </li>
                     {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'notifications:list' %}">
+                            <i class="fas fa-bell"></i> Notifications
+                            {% if unread_notifications_count %}
+                                <span class="badge bg-danger">{{ unread_notifications_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}

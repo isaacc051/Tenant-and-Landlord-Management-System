@@ -11,8 +11,8 @@ class PropertyDocumentInline(admin.TabularInline):
 
 @admin.register(Property)
 class PropertyAdmin(admin.ModelAdmin):
-    list_display = ('title', 'property_type', 'address', 'town_city', 'monthly_rent', 'available')
-    list_filter = ('property_type', 'town_city', 'available')
+    list_display = ('title', 'property_type', 'address', 'town_city', 'monthly_rent', 'status')
+    list_filter = ('property_type', 'town_city', 'status')
     search_fields = ('title', 'address', 'description')
     inlines = [PropertyImageInline, PropertyDocumentInline]
 

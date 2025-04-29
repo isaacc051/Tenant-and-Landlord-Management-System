@@ -15,6 +15,12 @@ class Property(models.Model):
         ('commercial', 'Commercial'),
     )
     
+    STATUS_CHOICES = (
+        ('available', 'Available'),
+        ('occupied', 'Occupied'),
+        ('maintenance', 'Under Maintenance'),
+    )
+    
     owner = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='properties')
     title = models.CharField(max_length=100)
     property_type = models.CharField(max_length=20, choices=PROPERTY_TYPE_CHOICES)
@@ -27,7 +33,7 @@ class Property(models.Model):
     bedrooms = models.PositiveIntegerField()
     bathrooms = models.DecimalField(max_digits=3, decimal_places=1)
     square_meters = models.PositiveIntegerField(help_text="Property size in square meters")
-    available = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -36,6 +42,27 @@ class Property(models.Model):
 
     def square_feet(self):
         return int(self.square_meters * 10.764)
+    
+    @property
+    def available(self):
+        """Compute availability based on status"""
+        return self.status == 'available'
+    
+    def update_status(self):
+        """Update property status based on active leases"""
+        from leases.models import Lease
+        has_active_lease = Lease.objects.filter(
+            property=self,
+            status='active',
+            start_date__lte=timezone.now().date(),
+            end_date__gte=timezone.now().date()
+        ).exists()
+        
+        if has_active_lease:
+            self.status = 'occupied'
+        else:
+            self.status = 'available'
+        self.save()
 
 
 class PropertyImage(models.Model):

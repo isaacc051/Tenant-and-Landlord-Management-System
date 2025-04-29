@@ -67,7 +67,11 @@
                         <div class="col-md-6">
                             <p><strong>Rent:</strong> £{{ property.monthly_rent|floatformat:2 }}/month</p>
                             <p><strong>Size:</strong> {{ property.square_meters }} m² ({{ property.square_feet }} sq ft)</p>
-                            <p><strong>Status:</strong> {% if property.available %}<span class="text-success">Available</span>{% else %}<span class="text-danger">Not Available</span>{% endif %}</p>
+                            <p><strong>Status:</strong> 
+                                <span class="badge {% if property.status == 'available' %}bg-success{% elif property.status == 'occupied' %}bg-danger{% else %}bg-warning{% endif %}">
+                                    {{ property.get_status_display }}
+                                </span>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -82,7 +86,7 @@
                 </div>
             </div>
             
-            {% if user.is_authenticated and user.user_type == 'tenant' and property.available %}
+            {% if user.is_authenticated and user.user_type == 'tenant' and property.status == 'available' %}
                 <div class="card mb-4">
                     <div class="card-header">
                         Interested in this property?

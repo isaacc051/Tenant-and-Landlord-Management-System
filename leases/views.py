@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from datetime import timedelta
 from .models import Lease, LeaseDocument
 from .forms import LeaseForm, LeaseDocumentForm
+from payments.models import Payment
 
 @login_required
 def lease_list(request):
@@ -222,3 +224,41 @@ def add_document(request, pk):
         'form': form,
         'lease': lease
     })
+
+@login_required
+def get_reminders(request):
+    """Calculate lease expiry and rent due reminders for the current user"""
+    today = timezone.now().date()
+    
+    # Get active lease
+    active_lease = Lease.objects.filter(
+        tenant=request.user,
+        status='active',
+        end_date__gte=today
+    ).first()
+    
+    # Calculate lease expiry
+    lease_expiry_days = None
+    lease_end_date = None
+    if active_lease:
+        lease_expiry_days = (active_lease.end_date - today).days
+        lease_end_date = active_lease.end_date
+    
+    # Get next rent payment
+    next_rent_due = Payment.objects.filter(
+        tenant=request.user,
+        payment_type='rent',
+        status='pending',
+        due_date__gte=today
+    ).order_by('due_date').first()
+    
+    next_rent_days = None
+    if next_rent_due:
+        next_rent_days = (next_rent_due.due_date - today).days
+    
+    return {
+        'lease_expiry_days': lease_expiry_days,
+        'lease_end_date': lease_end_date,
+        'next_rent_due': next_rent_due,
+        'next_rent_days': next_rent_days
+    }
